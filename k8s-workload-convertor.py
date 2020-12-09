@@ -48,9 +48,9 @@ class WorkloadConvertor(object):
     def convert_matadata(self):
         self.outputData["metadata"] = {}
         self.outputData["metadata"]["annotations"] = self.inputData["metadata"]["annotations"]
-        self.outputData["metadata"]["labels"] = self.inputData["metadata"]["labels"]
-        self.outputData["metadata"]["name"] = self.inputData["metadata"]["name"]
-        self.outputData["metadata"]["namespace"] = self.inputData["metadata"]["namespace"]
+        self.outputData["metadata"]["labels"]      = self.inputData["metadata"]["labels"]
+        self.outputData["metadata"]["name"]        = self.inputData["metadata"]["name"]
+        self.outputData["metadata"]["namespace"]   = self.inputData["metadata"]["namespace"]
 
     def convert_podSpec(self):
         self.outputData["spec"] = {}
