@@ -1,6 +1,7 @@
 import ruamel
 import ruamel.yaml
 import fire
+from functools import reduce
 
 available_kinds = ["Deployment", "DaemonSet"]
 
@@ -57,13 +58,11 @@ class WorkloadConvertor(object):
         self.outputData["spec"]["template"] = self.inputData["spec"]["template"]
     
     def remove_creationTimestamp(self):
-        if "creationTimestamp" in self.outputData["metadata"].keys():
+        if dict_get(self.outputData, "metadata.creationTimestamp"):
             del self.outputData["metadata"]["creationTimestamp"]
             
-        if "template" in self.outputData["spec"].keys():
-            if "metadata" in self.outputData["spec"]["template"].keys():
-                if "creationTimestamp" in self.outputData["spec"]["template"]["metadata"].keys():
-                    del self.outputData["spec"]["template"]["metadata"]["creationTimestamp"]
+        if dict_get(self.outputData, "spec.template.metadata.creationTimestamp"):
+            del self.outputData["spec"]["template"]["metadata"]["creationTimestamp"]
         
     def convert_deployment_to_daemonset(self):
         deploy = self.inputData
@@ -78,17 +77,20 @@ class WorkloadConvertor(object):
         self.convert_podSpec()
         
         # DaemonSet Strategy
-        if deploy["spec"]["updateStrategy"]["type"] == "RollingUpdate":
+        if dict_get(deploy, "spec.updateStrategy.type") == "RollingUpdate":
             ds["spec"]["updateStrategy"] = {}
             ds["spec"]["updateStrategy"]["type"] = deploy["spec"]["strategy"]["type"]
             ds["spec"]["updateStrategy"]["rollingUpdate"] = {}
             ds["spec"]["updateStrategy"]["rollingUpdate"]["maxUnavailable"] = deploy["spec"]["strategy"]["rollingUpdate"]["maxUnavailable"]
 
-        if "minReadySeconds" in deploy["spec"].keys():
+        if dict_get(deploy, "spec.minReadySeconds"):
             ds["spec"]["minReadySeconds"] = deploy["spec"]["minReadySeconds"]
 
         # fixup
         self.remove_creationTimestamp()
+
+def dict_get(dictionary, keys, default=None):
+  return reduce(lambda d, key: d.get(key, default) if isinstance(d, dict) else default, keys.split("."), dictionary)
 
 if __name__ == '__main__':
     fire.Fire(WorkloadConvertorCmd)
