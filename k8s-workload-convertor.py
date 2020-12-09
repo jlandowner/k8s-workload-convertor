@@ -90,7 +90,7 @@ class WorkloadConvertor(object):
         self.remove_creationTimestamp()
 
 def dict_get(dictionary, keys, default=None):
-  return reduce(lambda d, key: d.get(key, default) if isinstance(d, dict) else default, keys.split("."), dictionary)
+    return reduce(lambda d, key: d.get(key, default) if isinstance(d, dict) else default, keys.split("."), dictionary)
 
 if __name__ == '__main__':
     fire.Fire(WorkloadConvertorCmd)
